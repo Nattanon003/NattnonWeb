@@ -21,18 +21,19 @@
     </style>
 </head>
 <body>
-    <h1>QR Code GeneratorX2</h1>
+    <h1>QR Code Generator</h1>
     <p>Enter a URL below to generate a QR Code:</p>
     <input type="text" id="urlInput" placeholder="Enter URL here" size="40">
-    <button onclick="generateQRCode()">Generate QR Code</button>
+    <button onclick="generateQRCode()">Generate QR Code For U</button>
     <div id="qrcode"></div>
+    <a id="downloadLink" style="display: none; margin-top: 20px;">Download QR Code</a>
 
     <!-- เชื่อมต่อ QRCode.js -->
     <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
     <script>
         function generateQRCode() {
-            // ดึงค่าจาก Input
             const url = document.getElementById('urlInput').value;
+
             if (!url) {
                 alert('Please enter a valid URL');
                 return;
@@ -54,8 +55,18 @@
                     alert('Failed to generate QR Code!');
                 } else {
                     console.log('QR Code generated successfully!');
+                    createDownloadLink(canvas);
                 }
             });
+        }
+
+        function createDownloadLink(canvas) {
+            const downloadLink = document.getElementById('downloadLink');
+            const imageURL = canvas.toDataURL('image/png'); // แปลง Canvas เป็น Data URL
+            downloadLink.href = imageURL;
+            downloadLink.download = 'qrcode.png'; // ตั้งชื่อไฟล์สำหรับดาวน์โหลด
+            downloadLink.style.display = 'inline-block'; // แสดงลิงก์ดาวน์โหลด
+            downloadLink.textContent = 'Download QR Code'; // ข้อความบนลิงก์
         }
     </script>
 </body>
