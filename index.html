@@ -27,23 +27,23 @@
     <button onclick="generateQRCode()">Generate QR Code</button>
     <div id="qrcode"></div>
 
-    <!-- เชื่อมต่อ qrcode.js -->
     <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
     <script>
         function generateQRCode() {
-            const url = document.getElementById('urlInput').value; // ดึง URL จาก input
+            const url = document.getElementById('urlInput').value;
             if (!url) {
-                alert('Please enter a valid URL'); // แจ้งเตือนหากไม่ได้ใส่ URL
+                alert('Please enter a valid URL');
                 return;
             }
             const qrCodeContainer = document.getElementById('qrcode');
-            qrCodeContainer.innerHTML = ''; // ล้าง QR Code เดิม
-            QRCode.toCanvas(qrCodeContainer, url, {
-                width: 200, // ขนาดของ QR Code
-                margin: 2,  // ระยะขอบ
+            qrCodeContainer.innerHTML = ''; // ล้างเนื้อหาภายใน div
+            const canvas = document.createElement('canvas'); // สร้าง <canvas>
+            qrCodeContainer.appendChild(canvas); // เพิ่ม <canvas> ใน div
+            QRCode.toCanvas(canvas, url, {
+                width: 200,
+                margin: 2,
             }, function (error) {
                 if (error) console.error(error);
-                console.log('QR Code generated successfully!');
             });
         }
     </script>
