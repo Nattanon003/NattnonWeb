@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Code Generator</title>
+    <title>XXQR Code Generator</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -27,23 +27,34 @@
     <button onclick="generateQRCode()">Generate QR Code</button>
     <div id="qrcode"></div>
 
+    <!-- เชื่อมต่อ QRCode.js -->
     <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
     <script>
         function generateQRCode() {
+            // ดึงค่าจาก Input
             const url = document.getElementById('urlInput').value;
             if (!url) {
                 alert('Please enter a valid URL');
                 return;
             }
+
+            // เตรียมพื้นที่สำหรับ QR Code
             const qrCodeContainer = document.getElementById('qrcode');
-            qrCodeContainer.innerHTML = ''; // ล้างเนื้อหาภายใน div
+            qrCodeContainer.innerHTML = ''; // ล้างข้อมูลเก่า
             const canvas = document.createElement('canvas'); // สร้าง <canvas>
-            qrCodeContainer.appendChild(canvas); // เพิ่ม <canvas> ใน div
+            qrCodeContainer.appendChild(canvas); // ใส่ canvas ลงใน div
+
+            // สร้าง QR Code
             QRCode.toCanvas(canvas, url, {
                 width: 200,
                 margin: 2,
             }, function (error) {
-                if (error) console.error(error);
+                if (error) {
+                    console.error(error);
+                    alert('Failed to generate QR Code!');
+                } else {
+                    console.log('QR Code generated successfully!');
+                }
             });
         }
     </script>
