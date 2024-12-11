@@ -1,1 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 50px;
+        }
+        #qrcode {
+            margin-top: 20px;
+        }
+        input, button {
+            padding: 10px;
+            font-size: 16px;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>QR Code Generator</h1>
+    <p>Enter a URL below to generate a QR Code:</p>
+    <input type="text" id="urlInput" placeholder="Enter URL here" size="40">
+    <button onclick="generateQRCode()">Generate QR Code</button>
+    <div id="qrcode"></div>
 
+    <!-- รวม QRCode.js ไว้ในไฟล์เดียว -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+    <script>
+        function generateQRCode() {
+            const url = document.getElementById('urlInput').value; // ดึง URL จาก input
+            if (!url) {
+                alert('Please enter a valid URL'); // แจ้งเตือนหากไม่ได้ใส่ URL
+                return;
+            }
+            const qrCodeContainer = document.getElementById('qrcode');
+            qrCodeContainer.innerHTML = ''; // ล้าง QR Code เดิม
+            QRCode.toCanvas(qrCodeContainer, url, {
+                width: 200, // ขนาดของ QR Code
+                margin: 2,  // ระยะขอบ
+            }, function (error) {
+                if (error) console.error(error);
+                console.log('QR Code generated successfully!');
+            });
+        }
+    </script>
+</body>
+</html>
