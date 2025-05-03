@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ใส่รหัสความรัก 💕</title>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Kanit', sans-serif;
+      background: linear-gradient(to bottom, #ffd1dc, #ffe4ec);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      text-align: center;
+    }
+
+    h2 {
+      color: #d63384;
+      margin-bottom: 1rem;
+    }
+
+    #password-display {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 1.5rem;
+    }
+
+    .digit-box {
+      width: 40px;
+      height: 50px;
+      background-color: white;
+      border: 2px solid #ff4d88;
+      border-radius: 8px;
+      font-size: 2rem;
+      color: #ff4d88;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(3, 60px);
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .btn {
+      width: 60px;
+      height: 60px;
+      font-size: 1.5rem;
+      border-radius: 50%;
+      background-color: white;
+      border: 2px solid #ff4d88;
+      color: #ff4d88;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn:hover {
+      background-color: #ffe6ec;
+    }
+
+    .btn-wide {
+      grid-column: span 3;
+      width: 100%;
+      border-radius: 12px;
+    }
+
+    .btn-small {
+      grid-column: span 1;
+      font-size: 1rem;
+      height: 50px;
+    }
+
+    @media (max-width: 480px) {
+      .digit-box {
+        width: 35px;
+        height: 45px;
+        font-size: 1.8rem;
+      }
+      .btn {
+        width: 50px;
+        height: 50px;
+        font-size: 1.2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>ใส่รหัสวันครบรอบของเรา 💘</h2>
+    <div id="password-display">
+      <div class="digit-box" id="d0">-</div>
+      <div class="digit-box" id="d1">-</div>
+      <div class="digit-box" id="d2">-</div>
+      <div class="digit-box" id="d3">-</div>
+      <div class="digit-box" id="d4">-</div>
+      <div class="digit-box" id="d5">-</div>
+      <div class="digit-box" id="d6">-</div>
+      <div class="digit-box" id="d7">-</div>
+    </div>
+    <div class="buttons">
+      <button class="btn" onclick="press(1)">1</button>
+      <button class="btn" onclick="press(2)">2</button>
+      <button class="btn" onclick="press(3)">3</button>
+      <button class="btn" onclick="press(4)">4</button>
+      <button class="btn" onclick="press(5)">5</button>
+      <button class="btn" onclick="press(6)">6</button>
+      <button class="btn" onclick="press(7)">7</button>
+      <button class="btn" onclick="press(8)">8</button>
+      <button class="btn" onclick="press(9)">9</button>
+      <button class="btn" onclick="press(0)">0</button>
+      <button class="btn" onclick="backspace()">←</button>
+      <button class="btn" onclick="clearInput()">C</button>
+    </div>
+  </div>
+
+  <script>
+    let input = "";
+
+    function press(num) {
+      if (input.length < 8) {
+        input += num;
+        updateDisplay();
+        if (input.length === 8) checkPassword();
+      }
+    }
+
+    function backspace() {
+      input = input.slice(0, -1);
+      updateDisplay();
+    }
+
+    function clearInput() {
+      input = "";
+      updateDisplay();
+    }
+
+    function updateDisplay() {
+      for (let i = 0; i < 8; i++) {
+        const box = document.getElementById("d" + i);
+        box.textContent = input[i] ? input[i] : "-";
+      }
+    }
+
+    function checkPassword() {
+      if (input === "28052566") {
+        window.location.href = "menu.html";
+      } else {
+        alert("ที่รักลืมวันครบรอบของเราหรอ 💔");
+        clearInput();
+      }
+    }
+  </script>
+</body>
+</html>
