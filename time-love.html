@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Time Love 💑</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Prompt', sans-serif;
+      background: linear-gradient(to bottom right, #ffd6e7, #ffe6f0);
+      color: #ff2f92;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      min-height: 100vh;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .hearts {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      z-index: 0; /* ให้หัวใจอยู่ด้านหลัง */
+      pointer-events: none;
+    }
+
+    .heart {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: #ff66b2;
+      transform: rotate(45deg);
+      animation: floatHeart 8s linear infinite;
+      opacity: 0.8;
+    }
+
+    .heart::before,
+    .heart::after {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: #ff66b2;
+      border-radius: 50%;
+    }
+
+    .heart::before {
+      top: -10px;
+      left: 0;
+    }
+
+    .heart::after {
+      left: -10px;
+      top: 0;
+    }
+
+    @keyframes floatHeart {
+      0% {
+        transform: translateY(0) rotate(45deg);
+        opacity: 0.8;
+      }
+      100% {
+        transform: translateY(-100vh) translateX(30vw) rotate(45deg);
+        opacity: 0;
+      }
+    }
+
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 30px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+      max-width: 500px;
+      width: 100%;
+      position: relative;
+      z-index: 1; /* ให้เนื้อหาอยู่ข้างหน้าหัวใจ */
+    }
+
+    h2 {
+      font-size: 2rem;
+      margin-bottom: 20px;
+    }
+
+    #time-love-display {
+      font-size: 1.3rem;
+      line-height: 1.5;
+      margin-bottom: 20px;
+    }
+
+    button {
+      font-family: 'Prompt', sans-serif;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 30px;
+      background: #ff4d88;
+      color: white;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: #e60073;
+    }
+
+    .round-img {
+        width: 150px;         /* ปรับขนาดตามที่ต้องการ */
+        height: 150px;        /* ปรับขนาดให้เป็นวงกลม */
+        border-radius: 50%;   /* ทำให้รูปเป็นวงกลม */
+        object-fit: cover;    /* ให้รูปไม่บิดเบี้ยวเมื่อครอบภาพ */
+    }
+
+    @keyframes float {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+      100% { transform: translateY(0px); }
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .container {
+        padding: 18px;
+        max-width: 380px;
+      }
+
+      h2 {
+        font-size: 1.5rem;
+      }
+
+      #time-love-display {
+        font-size: 1.1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  
+  <!-- หัวใจลอย -->
+  <div class="hearts"></div>
+
+  <div class="container">
+    <img src="img/p1.jpg" alt="" class="round-img">
+    <h2>เราคบกันมาา</h2>
+    <p id="time-love-display">กำลังโหลด...</p>
+    <p>🩷เราเริ่มคบกัน <strong>28 พ.ค 2566</strong> ตอน <strong>2โมง </strong> อิอิ🩷</p>
+
+    <button onclick="location.href='menu.html'">BACK</button>
+  </div>
+
+  <script>
+    const start = new Date("2023-05-28T14:00:00");
+
+    function updateLoveTime() {
+      const now = new Date();
+      let diffTime = now - start;
+
+      let years = now.getFullYear() - start.getFullYear();
+      let months = now.getMonth() - start.getMonth();
+      let days = now.getDate() - start.getDate();
+      let hours = now.getHours() - start.getHours();
+      let mins = now.getMinutes() - start.getMinutes();
+
+      if (mins < 0) {
+        mins += 60;
+        hours -= 1;
+      }
+      if (hours < 0) {
+        hours += 24;
+        days -= 1;
+      }
+      if (days < 0) {
+        const prevMonth = new Date(now.getFullYear(), now.getMonth(), 0);
+        days += prevMonth.getDate();
+        months -= 1;
+      }
+      if (months < 0) {
+        months += 12;
+        years -= 1;
+      }
+
+      document.getElementById("time-love-display").textContent =
+        `${years} ปี ${months} เดือน ${days} วัน ${hours} ชั่วโมง ${mins} นาทีแล้วนะ`;
+    }
+
+    updateLoveTime();
+    setInterval(updateLoveTime, 1000);
+
+    // ฟังก์ชันสำหรับสร้างหัวใจลอย
+    const heartsContainer = document.querySelector('.hearts');
+
+    function createHeart() {
+      const heart = document.createElement('div');
+      heart.className = 'heart';
+      heart.style.left = Math.random() * 100 + 'vw';
+      heart.style.animationDuration = (4 + Math.random() * 6) + 's'; // 4-10 วินาที
+      heart.style.opacity = Math.random() * 0.5 + 0.5;
+
+      heartsContainer.appendChild(heart);
+
+      setTimeout(() => {
+        heart.remove();
+      }, 10000); // ลบหลัง 10 วิ
+    }
+
+    setInterval(createHeart, 300); // สร้างหัวใจทุก 300ms
+  </script>
+</body>
+</html>

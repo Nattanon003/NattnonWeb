@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>เมนูรักของเรา 💞</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      font-family: 'Kanit', sans-serif;
+      background: linear-gradient(to bottom, #ffd1dc, #ffe4ec);
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        padding: 20px;
+        max-width: 1200px;
+        margin: 0 auto;
+        box-sizing: border-box;
+        width: 100%;
+        min-height: 100vh;
+    }
+
+    .menu-title {
+        grid-column: 1 / -1;
+        text-align: center;
+        font-size: 2rem;
+        color: #fff;
+        margin-bottom: 20px;
+        }
+
+
+    .menu-box {
+      background-color: white;
+      border-radius: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+      padding: 30px 20px;
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      text-align: center;
+    }
+
+    .menu-box:hover {
+      transform: scale(1.03);
+      box-shadow: 0 12px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .menu-box img {
+      width: 80px;
+      height: 80px;
+      margin-bottom: 15px;
+    }
+
+    .menu-box h2 {
+      margin: 10px 0 5px;
+      font-size: 1.5rem;
+      color: #ff4d88;
+    }
+
+    .menu-box p {
+      margin: 0;
+      font-size: 1rem;
+      color: #333;
+    }
+
+    .heart {
+      font-size: 1.8rem;
+      margin-top: 10px;
+      animation: heartbeat 1s infinite;
+    }
+
+    @keyframes heartbeat {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+    }
+
+    /* 👉 สำหรับ iPad */
+        @media (max-width: 1024px) {
+        .container {
+            grid-template-columns: 1fr 1fr;
+        }
+        }
+
+        /* 👉 สำหรับมือถือ */
+        @media (max-width: 767px) {
+        .container {
+            grid-template-columns: 1fr;
+        }
+
+        .menu-title {
+            font-size: 1.8rem;
+        }
+
+        .menu-box img {
+            width: 60px;
+            height: 60px;
+        }
+
+        .menu-box h2 {
+            font-size: 1.3rem;
+        }
+
+        .menu-box p {
+            font-size: 0.95rem;
+        }
+        }
+
+  </style>
+</head>
+<body class="heart-bg">
+    <h1 class="menu-title">Menu of Our Love 💕</h1>
+  <div class="container">
+    <!-- <h1 class="menu-title">Menu of Our Love 💕</h1> -->
+    <div class="menu-box" onclick="location.href='time-love.html'">
+      <img src="img/1.png" alt="Time Love">
+      <h2> Love Calender</h2>
+      <p>เราคบกันมานานแค่ไหนแล้วน้าา</p>
+      <div class="heart">❤️</div>
+    </div>
+
+    <div class="menu-box" onclick="location.href='gallery.html'">
+      <img src="img/2.jpg" alt="Story Gallery">
+      <h2> Our Memories</h2>
+      <p>ภาพความทรงจำสุดน่ารัก</p>
+      <div class="heart">❤️</div>
+    </div>
+
+    <div class="menu-box" onclick="location.href='game.html'">
+      <img src="img/3.jpg" alt="Love Game">
+      <h2>Doll of Love</h2>
+      <p>จะเจอมั้ยน้าาา</p>
+      <div class="heart">❤️</div>
+    </div>
+
+    <div class="menu-box" onclick="location.href='messages.html'">
+      <img src="img/4.jpg" alt="Messages to Lover">
+      <h2> Love Notes</h2>
+      <p>ข้อความถึงไอ้ตัวเล็กก</p>
+      <div class="heart">❤️</div>
+    </div>
+
+    <p></p>
+  </div>
+</body>
+</html>

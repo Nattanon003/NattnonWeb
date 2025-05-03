@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>รักของเรา 💖</title>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit&display=swap" rel="stylesheet">
+  <style>
+    body {
+        margin: 0;
+        font-family: 'Kanit', sans-serif;
+        /* background: linear-gradient(to bottom right, #ffb6c1, #b3e0ff); */
+        background: linear-gradient(to bottom, #ffe6f0, #e0f7fa);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        overflow: hidden;
+        }
+
+
+    .container {
+      position: relative;
+      width: 500px;
+      height: 500px;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.1);
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .center-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 90%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      color: white;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      z-index: 1;
+    }
+
+    .center-text h2 {
+      margin: 0;
+      font-size: 1.8rem;
+    }
+
+    .center-text p {
+      margin: 0.5rem 0 1rem;
+      font-size: 1rem;
+    }
+
+    .btn-heart {
+      background-color: white;
+      color: #ff4d88;
+      padding: 10px 25px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      transition: all 0.2s;
+    }
+
+    .btn-heart:hover {
+      transform: scale(1.05);
+      background-color: #ffe6ec;
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        width: 350px;
+        height: 350px;
+      }
+
+      .center-text h2 {
+        font-size: 1.3rem;
+      }
+
+      .center-text p {
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- หัวใจแบบ SVG -->
+    <svg viewBox="0 0 512 512">
+      <path fill="#ff4d88" d="M471.7 73.3c-54.5-46.4-136-38.7-186.4 13.7L256 116.7l-29.3-29.7C176.3 34.7 94.8 26.9 40.3 73.3-20.6 128.2-13.4 227.7 43 284.3l182.6 187.1c12.5 12.8 32.7 12.8 45.2 0l182.6-187.1c56.4-56.6 63.6-156.1 18.3-211z"/>
+    </svg>
+    <div class="center-text">
+      <h2>Happy Every Day 💗</h2>
+      <p>ทุกๆวันคือวันของเราที่เราอยู่ด้วยกัน 💕</p>
+      <button onclick="location.href='login.html'" class="btn-heart">Let's Go ❤️</button>
+    </div>
+  </div>
+</body>
+</html>
