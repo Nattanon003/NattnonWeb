@@ -1,73 +1,72 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Code Generator</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 50px;
-        }
-        #qrcode {
-            margin-top: 20px;
-        }
-        input, button {
-            padding: 10px;
-            font-size: 16px;
-            margin: 5px;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>QR Code Generator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 50px;
+    }
+    #qrcode {
+      margin-top: 20px;
+    }
+    input, button {
+      padding: 10px;
+      font-size: 16px;
+      margin: 5px;
+    }
+    #qrImage {
+      margin-top: 20px;
+      display: none;
+      width: 200px;
+      height: 200px;
+    }
+  </style>
 </head>
 <body>
-    <h1>QR Code Generator</h1>
-    <p>Enter a URL below to generate a QR Code:</p>
-    <input type="text" id="urlInput" placeholder="Enter URL here" size="40">
-    <button onclick="generateQRCode()">Generate QR Code For U</button>
-    <div id="qrcode"></div>
-    <a id="downloadLink" style="display: none; margin-top: 20px;">Download QR Code</a>
+  <h1>QR Code Generator</h1>
+  <p>Enter a URL below to generate a QR Code:</p>
+  <input type="text" id="urlInput" placeholder="Enter URL here" size="40"/>
+  <button onclick="generateQRCode()">Generate QR Code</button>
+  <div id="qrcode"></div>
+  <img id="qrImage" alt="QR Code Image"/>
+  <br/>
+  <a id="downloadLink" style="display: none;" download="qrcode.png">Download QR Code</a>
 
-    <!-- เชื่อมต่อ QRCode.js -->
-    <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
-    <script>
-        function generateQRCode() {
-            const url = document.getElementById('urlInput').value;
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+  <script>
+    function generateQRCode() {
+      const url = document.getElementById('urlInput').value;
+      if (!url) {
+        alert('Please enter a valid URL');
+        return;
+      }
 
-            if (!url) {
-                alert('Please enter a valid URL');
-                return;
-            }
+      const canvas = document.createElement('canvas');
+      QRCode.toCanvas(canvas, url, {
+        width: 200,
+        margin: 2
+      }, function (error) {
+        if (error) {
+          console.error(error);
+          alert('Failed to generate QR Code!');
+        } else {
+          const imageURL = canvas.toDataURL('image/png');
+          // แสดงภาพให้ผู้ใช้ iOS กดค้างเพื่อบันทึก
+          const qrImage = document.getElementById('qrImage');
+          qrImage.src = imageURL;
+          qrImage.style.display = 'inline';
 
-            // เตรียมพื้นที่สำหรับ QR Code
-            const qrCodeContainer = document.getElementById('qrcode');
-            qrCodeContainer.innerHTML = ''; // ล้างข้อมูลเก่า
-            const canvas = document.createElement('canvas'); // สร้าง <canvas>
-            qrCodeContainer.appendChild(canvas); // ใส่ canvas ลงใน div
-
-            // สร้าง QR Code
-            QRCode.toCanvas(canvas, url, {
-                width: 200,
-                margin: 2,
-            }, function (error) {
-                if (error) {
-                    console.error(error);
-                    alert('Failed to generate QR Code!');
-                } else {
-                    console.log('QR Code generated successfully!');
-                    createDownloadLink(canvas);
-                }
-            });
+          // ลิงก์ดาวน์โหลดสำหรับ Android หรือ browser ที่รองรับ
+          const downloadLink = document.getElementById('downloadLink');
+          downloadLink.href = imageURL;
+          downloadLink.style.display = 'inline-block';
         }
-
-        function createDownloadLink(canvas) {
-            const downloadLink = document.getElementById('downloadLink');
-            const imageURL = canvas.toDataURL('image/png'); // แปลง Canvas เป็น Data URL
-            downloadLink.href = imageURL;
-            downloadLink.download = 'qrcode.png'; // ตั้งชื่อไฟล์สำหรับดาวน์โหลด
-            downloadLink.style.display = 'inline-block'; // แสดงลิงก์ดาวน์โหลด
-            downloadLink.textContent = 'Download QR Code'; // ข้อความบนลิงก์
-        }
-    </script>
+      });
+    }
+  </script>
 </body>
 </html>
