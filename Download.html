@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Link Preview: TikTok / Facebook / YouTube</title>
+  <style>
+    body{font-family:system-ui,-apple-system; margin:16px; line-height:1.4}
+    .box{max-width:720px; margin:0 auto}
+    input,button{font-size:16px; padding:10px; width:100%; box-sizing:border-box}
+    button{margin-top:8px}
+    .row{display:grid; gap:8px; grid-template-columns:1fr}
+    .hint{color:#666; font-size:13px; margin-top:8px}
+    .card{border:1px solid #ddd; border-radius:12px; padding:12px; margin-top:12px}
+    iframe{width:100%; border:0; border-radius:12px}
+    .actions{display:flex; gap:8px; flex-wrap:wrap; margin-top:8px}
+    .actions button{width:auto}
+    .tag{display:inline-block; padding:4px 8px; background:#f3f3f3; border-radius:999px; font-size:12px}
+    .err{color:#b00020}
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h2>วางลิงก์ TikTok / Facebook / YouTube</h2>
+
+    <div class="row">
+      <input id="url" placeholder="วางลิงก์ที่นี่…" autocomplete="off" />
+      <button id="go">แสดงพรีวิว</button>
+    </div>
+
+    <div class="hint">
+      * HTML ล้วนทำได้แค่ “พรีวิว/ฝังวิดีโอ/เปิดลิงก์/คัดลอก” ไม่สามารถดาวน์โหลดไฟล์วิดีโอจากแพลตฟอร์มได้โดยตรง
+    </div>
+
+    <div id="out" class="card" style="display:none">
+      <div id="meta"></div>
+      <div id="preview" style="margin-top:10px"></div>
+      <div class="actions">
+        <button id="open">เปิดลิงก์</button>
+        <button id="copy">คัดลอกลิงก์</button>
+        <button id="clear">ล้าง</button>
+      </div>
+      <div id="msg" class="hint"></div>
+    </div>
+
+    <p class="hint">
+      ทิปสำหรับ iPhone: ถ้าอยากให้เหมือนแอป ให้กด Share → Add to Home Screen
+    </p>
+  </div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+
+  function normalizeUrl(s){
+    try { return new URL(s.trim()).toString(); } catch { return ""; }
+  }
+
+  function detectPlatform(u){
+    const host = new URL(u).hostname.replace(/^www\./,'').toLowerCase();
+    if (host.includes("tiktok.com")) return "tiktok";
+    if (host.includes("youtube.com") || host.includes("youtu.be")) return "youtube";
+    if (host.includes("facebook.com") || host.includes("fb.watch")) return "facebook";
+    return "unknown";
+  }
+
+  function youtubeEmbed(u){
+    const url = new URL(u);
+    let id = "";
+
+    if (url.hostname.includes("youtu.be")) {
+      id = url.pathname.slice(1);
+    } else {
+      id = url.searchParams.get("v") || "";
+      // support /shorts/ID
+      if (!id && url.pathname.startsWith("/shorts/")) id = url.pathname.split("/")[2] || "";
+      // support /embed/ID
+      if (!id && url.pathname.startsWith("/embed/")) id = url.pathname.split("/")[2] || "";
+    }
+    if (!id) return "";
+    return `https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}?playsinline=1`;
+  }
+
+  function makePreview(u){
+    const p = detectPlatform(u);
+    $("preview").innerHTML = "";
+    $("meta").innerHTML = `<span class="tag">${p.toUpperCase()}</span>`;
+
+    if (p === "youtube") {
+      const src = youtubeEmbed(u);
+      if (!src) return { ok:false, error:"ลิงก์ YouTube ไม่ถูกต้อง (หา video id ไม่เจอ)" };
+      $("preview").innerHTML = `
+        <iframe height="405" src="${src}" allow="accelerometer; autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+      `;
+      return { ok:true };
+    }
+
+    if (p === "tiktok") {
+      // TikTok embed ต้องโหลดสคริปต์ของ TikTok
+      $("preview").innerHTML = `
+        <blockquote class="tiktok-embed" cite="${u}" data-video-id="" style="max-width: 605px;min-width: 325px;">
+          <section><a target="_blank" rel="noopener" href="${u}">ดูบน TikTok</a></section>
+        </blockquote>
+      `;
+      loadScriptOnce("https://www.tiktok.com/embed.js");
+      return { ok:true };
+    }
+
+    if (p === "facebook") {
+      // Facebook embed ต้องใช้ plugins และ SDK
+      $("preview").innerHTML = `
+        <div id="fb-root"></div>
+        <div class="fb-video" data-href="${u}" data-width="500" data-show-text="false"></div>
+      `;
+      loadScriptOnce("https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v19.0");
+      // หลังโหลด SDK แล้ว จะ parse ให้อัตโนมัติบางครั้ง; ถ้าไม่ขึ้น ผู้ใช้กดแสดงพรีวิวอีกที
+      return { ok:true };
+    }
+
+    $("preview").innerHTML = `<div class="err">ยังไม่รองรับโดเมนนี้ — ลองใช้ TikTok/Facebook/YouTube</div>`;
+    return { ok:false, error:"โดเมนไม่รองรับ" };
+  }
+
+  const loaded = new Set();
+  function loadScriptOnce(src){
+    if (loaded.has(src)) return;
+    loaded.add(src);
+    const s = document.createElement("script");
+    s.src = src;
+    s.async = true;
+    document.body.appendChild(s);
+  }
+
+  function showOut(show=true){
+    $("out").style.display = show ? "block" : "none";
+  }
+
+  function setMsg(t){ $("msg").textContent = t || ""; }
+
+  function run(){
+    setMsg("");
+    const u = normalizeUrl($("url").value);
+    if (!u) { showOut(true); $("preview").innerHTML = `<div class="err">กรุณาวางลิงก์ที่ถูกต้อง</div>`; return; }
+    showOut(true);
+    const r = makePreview(u);
+    $("open").onclick = () => window.open(u, "_blank", "noopener");
+    $("copy").onclick = async () => {
+      try{
+        await navigator.clipboard.writeText(u);
+        setMsg("คัดลอกแล้ว ✅");
+      } catch {
+        setMsg("คัดลอกไม่สำเร็จ (iOS บางเวอร์ชันต้องกดค้างแล้ว Copy)");
+      }
+    };
+    $("clear").onclick = () => { $("url").value=""; showOut(false); setMsg(""); };
+    if (!r.ok && r.error) setMsg(r.error);
+  }
+
+  $("go").addEventListener("click", run);
+  $("url").addEventListener("keydown", (e)=>{ if(e.key==="Enter") run(); });
+</script>
+</body>
+</html>
