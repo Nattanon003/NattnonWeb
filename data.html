@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>VLSM Hierarchical Calculator</title>
+
+<style>
+:root{ --pad: 20px; }
+*{ box-sizing:border-box; }
+
+body{
+  font-family:Arial;
+  background:#f4f6f9;
+  padding:var(--pad);
+  margin:0;
+}
+
+.header{
+  background:#222;
+  color:white;
+  padding:15px;
+  margin-bottom:20px;
+  border-radius:10px;
+}
+
+/* ===== FORM LAYOUT ===== */
+.controls{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  align-items:end;
+  margin-bottom:10px;
+}
+.controls .field{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  min-width:180px;
+}
+.controls label{
+  font-size:14px;
+  color:#222;
+}
+input, select{
+  padding:8px 10px;
+  margin:0;
+  border:1px solid #cfd6df;
+  border-radius:8px;
+  outline:none;
+  background:white;
+}
+button{
+  padding:9px 14px;
+  border:none;
+  border-radius:10px;
+  background:#111;
+  color:#fff;
+  cursor:pointer;
+  white-space:nowrap;
+}
+button:hover{ filter:brightness(1.05); }
+
+.host-wrap{
+  background:#fff;
+  border-radius:12px;
+  padding:12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  margin: 10px 0 14px;
+}
+.host-title{
+  font-weight:bold;
+  margin:0 0 10px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+.host-hint{
+  font-size:12px;
+  color:#666;
+  font-weight:normal;
+}
+.host-grid{
+  display:grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap:10px;
+}
+
+/* ===== TABLE WRAPPER ===== */
+.table-wrap{
+  width:100%;
+  overflow-x:auto;
+  -webkit-overflow-scrolling:touch;
+  border-radius:12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  background:white;
+}
+
+/* ===== TABLE ===== */
+table{
+  border-collapse:collapse;
+  width:100%;
+  min-width: 980px;
+  margin-top:0;
+}
+th,td{
+  border:1px solid #ccc;
+  padding:8px;
+  vertical-align:top;
+}
+th{
+  background:#333;
+  color:white;
+  position:sticky;
+  top:0;
+  z-index:100;
+}
+tr:hover{ background:#ffeeba !important; }
+tr:not(.reserved):hover td{ filter:brightness(0.95); }
+
+/* ===== COLUMN COLORS (desktop) ===== */
+td:nth-child(1){ background:rgb(75,255,125); }
+td:nth-child(2){ background:white; }
+td:nth-child(3){ background:rgb(100,225,225); }
+td:nth-child(4){ background:rgb(200,100,225); }
+td:nth-child(5){ background:rgb(100,255,200); }
+td:nth-child(6){ background:rgb(255,175,75); }
+td:nth-child(7){ background:white; }
+td:nth-child(8){ background:white; }
+
+/* ===== BINARY ===== */
+.binary{
+  font-family:Consolas, monospace;
+  font-size:13px;
+  word-break:break-word;
+}
+.bit-added{ color:red; font-weight:bold; }
+
+/* ===== RESERVED ===== */
+.reserved td,
+.reserved td *,
+.reserved .bit-added{
+  background:#ff3b3b !important;
+  color:white !important;
+  font-weight:bold;
+}
+
+/* ===== RESPONSIVE (card/paragraph view) ===== */
+@media (max-width: 768px){
+  :root{ --pad: 12px; }
+
+  .header{ padding:12px; }
+  .header h2{ margin:0; font-size:18px; }
+
+  .controls{ flex-direction:column; align-items:stretch; }
+  .controls .field{ min-width:0; width:100%; }
+  button{ width:100%; }
+
+  .host-grid{ grid-template-columns: repeat(2, 1fr); }
+
+  table{ min-width:0; }
+  thead{ display:none; }
+
+  tbody tr{
+    display:block;
+    margin:12px 10px;
+    border:1px solid #d7dde6;
+    border-radius:14px;
+    overflow:hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    background:#fff;
+  }
+
+  tbody td{
+    display:flex;
+    gap:10px;
+    border:none;
+    border-bottom:1px solid #eef1f5;
+    padding:10px 12px;
+    font-size:13px;
+    background:#fff !important;
+  }
+  tbody td:last-child{ border-bottom:none; }
+
+  tbody td::before{
+    content: attr(data-label);
+    flex:0 0 110px;
+    font-weight:bold;
+    color:#222;
+    opacity:0.9;
+  }
+
+  tbody td input,
+  tbody td select{ width:100%; }
+
+  .binary{ font-size:12px; }
+
+  tbody tr.reserved{ border-color:#ff3b3b; }
+  tbody tr.reserved td{ background:#fff3f3 !important; }
+  tbody tr.reserved td::before{ color:#b00000; }
+}
+
+@media (max-width: 420px){
+  .host-grid{ grid-template-columns: 1fr; }
+  tbody td::before{ flex-basis: 96px; }
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+  <h2>VLSM Hierarchical Calculator</h2>
+</div>
+
+<div class="controls">
+  <div class="field">
+    <label>Network Address:</label>
+    <input type="text" id="baseIp" value="172.100.112.0" />
+  </div>
+
+  <div class="field">
+    <label>Subnet Mark:</label>
+    <select id="basePrefix"></select>
+  </div>
+
+  <button id="startBtn" type="button">Start</button>
+</div>
+
+<div class="host-wrap">
+  <div class="host-title">
+    <span>Host Requirements (Auto Save)</span>
+    <span class="host-hint">พอกรอกครบทุกช่องแล้วจะเรียง “มาก → น้อย” อัตโนมัติ (ตอนออกจากช่อง / กด Enter)</span>
+  </div>
+
+  <div class="host-grid" id="hostInputs">
+    <input type="text" inputmode="numeric" value="500" />
+    <input type="text" inputmode="numeric" value="400" />
+    <input type="text" inputmode="numeric" value="310" />
+    <input type="text" inputmode="numeric" value="300" />
+    <input type="text" inputmode="numeric" value="111" />
+    <input type="text" inputmode="numeric" value="100" />
+    <input type="text" inputmode="numeric" value="60" />
+    <input type="text" inputmode="numeric" value="50" />
+  </div>
+</div>
+
+<div id="output"></div>
+
+<script>
+// ===== IP UTILS =====
+function ipToInt(ip){ return ip.split('.').reduce((a,b)=>(a<<8)+parseInt(b),0)>>>0; }
+function intToIp(int){ return [(int>>>24)&255,(int>>>16)&255,(int>>>8)&255,int&255].join('.'); }
+function prefixToMask(prefix){
+  let mask=(0xffffffff<<(32-prefix))>>>0;
+  return intToIp(mask);
+}
+function usableHosts(prefix){ return (2**(32-prefix))-2; }
+
+// ===== VALIDATION =====
+function isValidIp(ip){
+  let parts = ip.split(".");
+  if(parts.length !== 4) return false;
+  for(let p of parts){
+    let n = parseInt(p);
+    if(isNaN(n) || n < 0 || n > 255) return false;
+  }
+  return true;
+}
+function getNetworkAddress(ip, prefix){
+  let ipInt = ipToInt(ip);
+  let mask = (0xffffffff << (32 - prefix)) >>> 0;
+  let networkInt = ipInt & mask;
+  return intToIp(networkInt);
+}
+
+// ===== BINARY =====
+function networkBinaryWithHighlight(network,prefix,parentPrefix){
+  let binary = ipToInt(network).toString(2).padStart(32,'0');
+  let result="";
+  for(let i=0;i<32;i++){
+    if(parentPrefix!==null && i>=parentPrefix && i<prefix){
+      result+=`<span class="bit-added">${binary[i]}</span>`;
+    } else {
+      result+=binary[i];
+    }
+    if((i+1)%8===0 && i!==31) result+=".";
+  }
+  return result;
+}
+
+// ===== SUBNET INFO =====
+function subnetInfo(network,prefix){
+  let base=ipToInt(network);
+  let size=2**(32-prefix);
+  return{
+    network:network+"/"+prefix,
+    mask:prefixToMask(prefix),
+    first:intToIp(base+1),
+    last:intToIp(base+size-2),
+    broadcast:intToIp(base+size-1),
+    hosts:size-2
+  };
+}
+
+// ===== SPLIT =====
+function splitSubnet(network,prefix,newPrefix){
+  let base=ipToInt(network);
+  let size=2**(32-newPrefix);
+  let count=2**(newPrefix-prefix);
+  let arr=[];
+  for(let i=0;i<count;i++){
+    arr.push({
+      network:intToIp(base+i*size),
+      prefix:newPrefix,
+      parentPrefix:prefix,
+      reserved:false,
+      children:[],
+      splitTo:null,
+      comment:""
+    });
+  }
+  return arr;
+}
+
+let root=null;
+
+// ===== SAVE / LOAD (LOCAL STORAGE) =====
+const LS_KEY = "vlsm_hier_calc_v2";
+
+function saveAllData(){
+  const hostInputs = document.querySelectorAll("#hostInputs input");
+  const hostValues = Array.from(hostInputs).map(i => i.value);
+
+  const payload = {
+    baseIp: document.getElementById("baseIp").value,
+    basePrefix: document.getElementById("basePrefix").value,
+    hostValues
+  };
+  localStorage.setItem(LS_KEY, JSON.stringify(payload));
+}
+
+function loadAllData(){
+  let raw = localStorage.getItem(LS_KEY);
+  if(!raw) return;
+  try{
+    const data = JSON.parse(raw);
+
+    if(typeof data.baseIp === "string"){
+      document.getElementById("baseIp").value = data.baseIp;
+    }
+    if(data.basePrefix !== undefined && data.basePrefix !== null){
+      document.getElementById("basePrefix").value = data.basePrefix;
+    }
+    if(Array.isArray(data.hostValues)){
+      const hostInputs = document.querySelectorAll("#hostInputs input");
+      hostInputs.forEach((input, idx) => {
+        if(data.hostValues[idx] !== undefined) input.value = data.hostValues[idx];
+      });
+    }
+  }catch(e){}
+}
+
+// ===== HOST SORT (DESC) =====
+function parseHostNumber(str){
+  // อนุญาตให้พิมพ์เว้นวรรคได้ แต่ต้องเป็นตัวเลข
+  const s = (str || "").trim();
+  if(s === "") return null;
+  if(!/^\d+$/.test(s)) return null;
+  return parseInt(s, 10);
+}
+
+function sortHostsIfComplete(){
+  const inputs = Array.from(document.querySelectorAll("#hostInputs input"));
+  const nums = inputs.map(i => parseHostNumber(i.value));
+
+  // "ครบแล้ว" = ทุกช่องต้องเป็นตัวเลข (ไม่ว่าง/ไม่ตัวอักษร)
+  const allValid = nums.every(n => typeof n === "number" && !isNaN(n));
+  if(!allValid) return;
+
+  const sorted = nums.slice().sort((a,b)=>b-a);
+  inputs.forEach((inp, idx)=> inp.value = String(sorted[idx]));
+
+  // บันทึกหลังเรียง
+  saveAllData();
+}
+
+// เรียงตอน "ออกจากช่อง" (blur) หรือ "กด Enter"
+document.addEventListener("focusout", (e)=>{
+  if(e.target && e.target.closest && e.target.closest("#hostInputs")){
+    sortHostsIfComplete();
+  }
+});
+
+document.addEventListener("keydown", (e)=>{
+  if(e.key === "Enter" && e.target && e.target.closest && e.target.closest("#hostInputs")){
+    e.preventDefault();
+    // ขยับไปช่องถัดไป (ถ้ามี)
+    const inputs = Array.from(document.querySelectorAll("#hostInputs input"));
+    const idx = inputs.indexOf(e.target);
+    if(idx >= 0 && idx < inputs.length - 1){
+      inputs[idx+1].focus();
+    }else{
+      e.target.blur(); // กระตุ้น sort
+    }
+    sortHostsIfComplete();
+  }
+});
+
+// auto save when typing (ไม่เรียงตอนพิมพ์ เพื่อไม่ให้เด้ง)
+document.addEventListener("input", (e)=>{
+  if(
+    e.target.closest("#hostInputs") ||
+    e.target.id === "baseIp" ||
+    e.target.id === "basePrefix"
+  ){
+    saveAllData();
+  }
+});
+
+// ===== INIT =====
+function loadPrefixDropdown(){
+  let select=document.getElementById("basePrefix");
+  select.innerHTML = "";
+  for(let p=8;p<=30;p++){
+    let option=document.createElement("option");
+    option.value=p;
+    option.text="/"+p+" ("+prefixToMask(p)+")";
+    if(p==24) option.selected=true;
+    select.appendChild(option);
+  }
+}
+
+function initNetwork(){
+  let ipInput = document.getElementById("baseIp").value.trim();
+  let prefix = parseInt(document.getElementById("basePrefix").value);
+
+  if(!isValidIp(ipInput)) return;
+
+  let network = getNetworkAddress(ipInput, prefix);
+
+  root={
+    network:network,
+    prefix:prefix,
+    parentPrefix:null,
+    reserved:false,
+    children:[],
+    splitTo:null,
+    comment:""
+  };
+
+  redraw();
+}
+
+// ===== SEARCH =====
+function findNode(node,network,prefix){
+  if(node.network===network && node.prefix===prefix) return node;
+  for(let c of node.children){
+    let f=findNode(c,network,prefix);
+    if(f) return f;
+  }
+  return null;
+}
+
+// ===== COMMENT =====
+function updateComment(network,prefix,value){
+  let node=findNode(root,network,prefix);
+  if(node) node.comment=value;
+}
+
+// ===== ACTION =====
+function handleAction(select,network,prefix){
+  let value=select.value;
+  if(!value) return;
+
+  let node=findNode(root,network,prefix);
+
+  if(value==="reset"){
+    node.reserved=false;
+    node.children=[];
+    node.splitTo=null;
+  }
+  else if(value==="reserve"){
+    node.reserved=true;
+    node.children=[];
+    node.splitTo=null;
+  }
+  else if(value.startsWith("split")){
+    let newPrefix=parseInt(value.split("-")[1]);
+    node.reserved=false;
+    node.splitTo=newPrefix;
+    node.children=splitSubnet(network,prefix,newPrefix);
+  }
+
+  redraw();
+}
+
+// ===== RENDER =====
+function render(node,level,rows){
+  let info=subnetInfo(node.network,node.prefix);
+
+  let dropdown = `<select onchange="handleAction(this,'${node.network}',${node.prefix})">`;
+  dropdown += `<option value="">Action</option>`;
+  if(node.reserved || node.splitTo) dropdown += `<option value="reset">Reset</option>`;
+  dropdown += `<option value="reserve" ${node.reserved ? "selected":""}>Reserve</option>`;
+  for(let p=node.prefix+1;p<=30;p++){
+    let selected=(node.splitTo===p)?"selected":"";
+    dropdown += `<option value="split-${p}" ${selected}>
+      Split /${p} (${prefixToMask(p)}) - ${usableHosts(p)} Hosts
+    </option>`;
+  }
+  dropdown += `</select>`;
+
+  rows.push(`
+    <tr class="${node.reserved?'reserved':''}">
+      <td data-label="Network" style="padding-left:${level*30}px">
+        ${info.network}<br>
+        <div class="binary">${networkBinaryWithHighlight(node.network,node.prefix,node.parentPrefix)}</div>
+      </td>
+      <td data-label="Subnet Mask">${info.mask}</td>
+      <td data-label="First IP">${info.first}</td>
+      <td data-label="Last IP">${info.last}</td>
+      <td data-label="Broadcast">${info.broadcast}</td>
+      <td data-label="Usable Hosts">${info.hosts}</td>
+      <td data-label="Comment">
+        ${node.reserved ? '' :
+          `<input value="${node.comment || ''}"
+            oninput="updateComment('${node.network}',${node.prefix},this.value)">`
+        }
+      </td>
+      <td data-label="Action">${dropdown}</td>
+    </tr>
+  `);
+
+  node.children.forEach(c=>render(c,level+1,rows));
+}
+
+function redraw(){
+  let rows=[];
+  rows.push(`
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Network</th>
+            <th>Subnet Mask</th>
+            <th>First IP</th>
+            <th>Last IP</th>
+            <th>Broadcast</th>
+            <th>Usable Hosts</th>
+            <th>Comment</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+  `);
+
+  render(root,0,rows);
+
+  rows.push(`</tbody></table></div>`);
+  document.getElementById("output").innerHTML=rows.join("");
+}
+
+// ===== BOOT =====
+loadPrefixDropdown();
+loadAllData();
+sortHostsIfComplete(); // ถ้าข้อมูลที่โหลดมาครบ จะเรียงให้เลย
+initNetwork();
+
+document.getElementById("startBtn").addEventListener("click", ()=>{
+  saveAllData();
+  initNetwork();
+});
+</script>
+
+</body>
+</html>
