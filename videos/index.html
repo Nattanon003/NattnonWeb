@@ -1,85 +1,116 @@
 <!DOCTYPE html>
-<html>
+<html lang="th">
 <head>
-<meta charset="UTF-8">
-<title>Video Web</title>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<style>
-body{
-font-family:Arial;
-background:#0f172a;
-color:white;
-text-align:center;
-}
-
-.grid{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
-gap:20px;
-padding:20px;
-}
-
-.card{
-background:#1e293b;
-padding:15px;
-border-radius:10px;
-}
-
-video{
-width:100%;
-}
-</style>
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Video Library</title>
+  <style>
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Arial,sans-serif;
+      background:#0f172a;
+      color:#fff;
+      padding:20px;
+    }
+    h1{text-align:center}
+    .top{
+      text-align:center;
+      margin-bottom:20px;
+    }
+    .top a{
+      display:inline-block;
+      text-decoration:none;
+      background:#2563eb;
+      color:#fff;
+      padding:10px 16px;
+      border-radius:10px;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+      gap:20px;
+      max-width:1100px;
+      margin:0 auto;
+    }
+    .card{
+      background:#1e293b;
+      border-radius:14px;
+      padding:14px;
+    }
+    video{
+      width:100%;
+      border-radius:10px;
+      background:#000;
+    }
+    .title{
+      margin-top:10px;
+      font-size:18px;
+      font-weight:bold;
+    }
+    .btn{
+      display:inline-block;
+      margin-top:10px;
+      text-decoration:none;
+      background:#2563eb;
+      color:#fff;
+      padding:10px 14px;
+      border-radius:10px;
+    }
+    .empty{
+      text-align:center;
+      color:#cbd5e1;
+      margin-top:30px;
+    }
+  </style>
 </head>
-
 <body>
+  <h1>Video Library</h1>
+  <div class="top">
+    <a href="admin.html">เข้าแอดมิน</a>
+  </div>
+  <div class="grid" id="videos"></div>
+  <div class="empty" id="empty"></div>
 
-<h1>Video Library</h1>
+  <script type="module">
+    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
-<div class="grid" id="videos"></div>
+    const SUPABASE_URL = "https://cveuydxnvznvsoemedqc.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_cBCvq1SS8yGwpw19mD6M8Q_KB_lrt9R";
 
-<script>
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const supabase = window.supabase.createClient(
-"https://cveuydxnvznvsoemedqc.supabase.co",
-"sb_publishable_cBCvq1SS8yGwpw19mD6M8Q_KB_lrt9R"
-)
+    async function loadVideos() {
+      const container = document.getElementById("videos");
+      const empty = document.getElementById("empty");
 
-async function loadVideos(){
+      const { data, error } = await supabase
+        .from("videos")
+        .select("*")
+        .order("id", { ascending: false });
 
-let {data} = await supabase
-.from("videos")
-.select("*")
-.order("id",{ascending:false})
+      if (error) {
+        empty.textContent = "โหลดข้อมูลไม่สำเร็จ: " + error.message;
+        return;
+      }
 
-let html=""
+      if (!data || data.length === 0) {
+        empty.textContent = "ยังไม่มีคลิป";
+        return;
+      }
 
-data.forEach(v=>{
+      container.innerHTML = data.map(v => `
+        <div class="card">
+          <video controls playsinline>
+            <source src="${v.file_url}">
+          </video>
+          <div class="title">${v.title ?? ""}</div>
+          <a class="btn" href="${v.file_url}" download>Download</a>
+        </div>
+      `).join("");
+    }
 
-html+=`
-<div class="card">
-
-<video controls>
-<source src="${v.file_url}">
-</video>
-
-<h3>${v.title}</h3>
-
-<a href="${v.file_url}" download>Download</a>
-
-</div>
-`
-})
-
-document.getElementById("videos").innerHTML=html
-
-}
-
-loadVideos()
-
-</script>
-
+    loadVideos();
+  </script>
 </body>
 </html>
