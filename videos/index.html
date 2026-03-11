@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Video Download</title>
+
+<style>
+
+body{
+    font-family:Arial;
+    background:#0f172a;
+    color:white;
+    margin:0;
+    padding:20px;
+}
+
+h1{
+    text-align:center;
+    margin-bottom:30px;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+    gap:20px;
+}
+
+.card{
+    background:#1e293b;
+    padding:15px;
+    border-radius:12px;
+}
+
+video{
+    width:100%;
+    border-radius:10px;
+}
+
+.title{
+    margin-top:10px;
+    font-size:18px;
+}
+
+.btn{
+    display:block;
+    text-align:center;
+    background:#2563eb;
+    color:white;
+    text-decoration:none;
+    padding:10px;
+    border-radius:8px;
+    margin-top:10px;
+}
+
+.btn:hover{
+    background:#1d4ed8;
+}
+
+</style>
+</head>
+
+<body>
+
+<h1>ดาวน์โหลดคลิป</h1>
+
+<div class="grid">
+
+<div class="card">
+<video controls>
+<source src="1.mp4" type="video/mp4">
+</video>
+<div class="title">Video 1</div>
+<a class="btn" href="1.mp4" download>ดาวน์โหลด</a>
+</div>
+
+<div class="card">
+<video controls>
+<source src="2.mp4" type="video/mp4">
+</video>
+<div class="title">Video 2</div>
+<a class="btn" href="2.mp4" download>ดาวน์โหลด</a>
+</div>
+
+<div class="card">
+<video controls>
+<source src="3.mp4" type="video/mp4">
+</video>
+<div class="title">Video 3</div>
+<a class="btn" href="3.mp4" download>ดาวน์โหลด</a>
+</div>
+
+</div>
+
+</body>
+</html>
