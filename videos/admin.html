@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Admin</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+body{
+font-family:Arial;
+background:#111;
+color:white;
+text-align:center;
+padding:40px;
+}
+
+input,button{
+padding:10px;
+margin:10px;
+}
+</style>
+
+</head>
+
+<body>
+
+<h1>Admin Upload</h1>
+
+<input type="password" id="pass" placeholder="Password">
+<button onclick="login()">Login</button>
+
+<div id="panel" style="display:none">
+
+<input id="title" placeholder="Video title">
+
+<input type="file" id="file">
+
+<button onclick="upload()">Upload</button>
+
+</div>
+
+<script>
+
+const supabase = window.supabase.createClient(
+"https://cveuydxnvznvsoemedqc.supabase.co",
+"sb_publishable_cBCvq1SS8yGwpw19mD6M8Q_KB_lrt9R"
+)
+
+function login(){
+
+if(document.getElementById("pass").value=="5555"){
+
+document.getElementById("panel").style.display="block"
+
+}
+
+}
+
+async function upload(){
+
+let file=document.getElementById("file").files[0]
+
+let title=document.getElementById("title").value
+
+let name=Date.now()+file.name
+
+await supabase.storage
+.from("videos")
+.upload(name,file)
+
+let url=`https://cveuydxnvznvsoemedqc.supabase.co/storage/v1/object/public/videos/${name}`
+
+await supabase
+.from("videos")
+.insert({title:title,file_url:url})
+
+alert("Uploaded!")
+
+}
+
+</script>
+
+</body>
+</html>
