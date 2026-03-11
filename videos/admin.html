@@ -1,85 +1,176 @@
 <!DOCTYPE html>
-<html>
+<html lang="th">
 <head>
-<meta charset="UTF-8">
-<title>Admin</title>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<style>
-body{
-font-family:Arial;
-background:#111;
-color:white;
-text-align:center;
-padding:40px;
-}
-
-input,button{
-padding:10px;
-margin:10px;
-}
-</style>
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Upload</title>
+  <style>
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Arial,sans-serif;
+      background:#0f172a;
+      color:#fff;
+      padding:20px;
+    }
+    .wrap{
+      max-width:700px;
+      margin:0 auto;
+    }
+    .card{
+      background:#1e293b;
+      border-radius:16px;
+      padding:20px;
+      margin-top:20px;
+    }
+    h1{
+      text-align:center;
+      margin:0 0 10px;
+    }
+    p{
+      text-align:center;
+      color:#cbd5e1;
+    }
+    input,button{
+      width:100%;
+      padding:12px;
+      margin-top:12px;
+      border:none;
+      border-radius:10px;
+      font-size:16px;
+    }
+    input{
+      background:#fff;
+      color:#111;
+    }
+    button{
+      background:#2563eb;
+      color:#fff;
+      font-weight:bold;
+      cursor:pointer;
+    }
+    #panel{display:none}
+    #msg{
+      margin-top:12px;
+      color:#facc15;
+      white-space:pre-line;
+    }
+    .ok{color:#4ade80}
+    .err{color:#f87171}
+  </style>
 </head>
-
 <body>
+  <div class="wrap">
+    <div class="card" id="loginCard">
+      <h1>Admin</h1>
+      <p>ใส่รหัส 5555 เพื่อเข้าอัปโหลดคลิป</p>
+      <input type="password" id="pass" placeholder="Password">
+      <button id="loginBtn">Login</button>
+      <div id="msg"></div>
+    </div>
 
-<h1>Admin Upload</h1>
+    <div class="card" id="panel">
+      <h1>Upload Video</h1>
+      <input type="text" id="title" placeholder="ชื่อคลิป">
+      <input type="file" id="file" accept="video/*">
+      <button id="uploadBtn">Upload</button>
+      <div id="uploadMsg"></div>
+    </div>
+  </div>
 
-<input type="password" id="pass" placeholder="Password">
-<button onclick="login()">Login</button>
+  <script type="module">
+    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
-<div id="panel" style="display:none">
+    const SUPABASE_URL = "https://cveuydxnvznvsoemedqc.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_cBCvq1SS8yGwpw19mD6M8Q_KB_lrt9R";
 
-<input id="title" placeholder="Video title">
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-<input type="file" id="file">
+    const loginBtn = document.getElementById("loginBtn");
+    const passInput = document.getElementById("pass");
+    const msg = document.getElementById("msg");
+    const panel = document.getElementById("panel");
 
-<button onclick="upload()">Upload</button>
+    const uploadBtn = document.getElementById("uploadBtn");
+    const titleInput = document.getElementById("title");
+    const fileInput = document.getElementById("file");
+    const uploadMsg = document.getElementById("uploadMsg");
 
-</div>
+    function showMessage(text, type="") {
+      msg.textContent = text;
+      msg.className = type;
+    }
 
-<script>
+    function showUploadMessage(text, type="") {
+      uploadMsg.textContent = text;
+      uploadMsg.className = type;
+    }
 
-const supabase = window.supabase.createClient(
-"https://cveuydxnvznvsoemedqc.supabase.co",
-"sb_publishable_cBCvq1SS8yGwpw19mD6M8Q_KB_lrt9R"
-)
+    loginBtn.addEventListener("click", () => {
+      const password = passInput.value.trim();
 
-function login(){
+      if (password === "5555") {
+        panel.style.display = "block";
+        showMessage("เข้าสู่ระบบสำเร็จ", "ok");
+      } else {
+        panel.style.display = "none";
+        showMessage("รหัสไม่ถูกต้อง", "err");
+      }
+    });
 
-if(document.getElementById("pass").value=="5555"){
+    uploadBtn.addEventListener("click", async () => {
+      const title = titleInput.value.trim();
+      const file = fileInput.files[0];
 
-document.getElementById("panel").style.display="block"
+      if (!title) {
+        showUploadMessage("กรุณาใส่ชื่อคลิป", "err");
+        return;
+      }
 
-}
+      if (!file) {
+        showUploadMessage("กรุณาเลือกไฟล์วิดีโอ", "err");
+        return;
+      }
 
-}
+      try {
+        showUploadMessage("กำลังอัปโหลด...", "");
 
-async function upload(){
+        const fileName = `${Date.now()}-${file.name}`;
+        const filePath = fileName;
 
-let file=document.getElementById("file").files[0]
+        const { error: uploadError } = await supabase
+          .storage
+          .from("videos")
+          .upload(filePath, file, { upsert: false });
 
-let title=document.getElementById("title").value
+        if (uploadError) {
+          showUploadMessage("อัปโหลดไฟล์ไม่สำเร็จ: " + uploadError.message, "err");
+          return;
+        }
 
-let name=Date.now()+file.name
+        const { data: publicUrlData } = supabase
+          .storage
+          .from("videos")
+          .getPublicUrl(filePath);
 
-await supabase.storage
-.from("videos")
-.upload(name,file)
+        const fileUrl = publicUrlData.publicUrl;
 
-let url=`https://cveuydxnvznvsoemedqc.supabase.co/storage/v1/object/public/videos/${name}`
+        const { error: insertError } = await supabase
+          .from("videos")
+          .insert([{ title, file_url: fileUrl }]);
 
-await supabase
-.from("videos")
-.insert({title:title,file_url:url})
+        if (insertError) {
+          showUploadMessage("บันทึกข้อมูลไม่สำเร็จ: " + insertError.message, "err");
+          return;
+        }
 
-alert("Uploaded!")
-
-}
-
-</script>
-
+        showUploadMessage("อัปโหลดสำเร็จ", "ok");
+        titleInput.value = "";
+        fileInput.value = "";
+      } catch (e) {
+        showUploadMessage("เกิดข้อผิดพลาด: " + e.message, "err");
+      }
+    });
+  </script>
 </body>
 </html>
